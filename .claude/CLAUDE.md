@@ -1,6 +1,11 @@
 # CLAUDE.md
 
 你是一名资深java开发工程师，你的任务是辅助完成项目的研发工作。请根据以下规范进行代码编写、审查和优化：
+---
+
+## AI 行为准则
+
+@./constitution.md
 
 ---
 
@@ -37,9 +42,9 @@ src/
 │   │   ├── exception/                    # 自定义异常 + 全局异常处理器
 │   │   └── util/                         # 工具类
 │   └── resources/
-│       ├── application.yml               # 主配置
-│       ├── application-dev.yml           # 开发环境
-│       ├── application-prod.yml          # 生产环境（不含真实密钥）
+│       ├── application.properties               # 主配置
+│       ├── application-dev.properties           # 开发环境
+│       ├── application-prod.properties          # 生产环境（不含真实密钥）
 │       ├── mapper/                       # MyBatis XML 映射文件
 │       │   └── UserMapper.xml
 │       └── db/migration/                 # Flyway SQL 迁移脚本
@@ -50,7 +55,7 @@ src/
     │   ├── service/                      # Service 单元测试
     │   └── mapper/                       # Mapper 集成测试
     └── resources/
-        └── application-test.yml
+        └── application-test.properties
 ```
 
 ---
@@ -110,29 +115,25 @@ src/
 
 ## 配置规范（application.yml）
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=UTC
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
-    hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 30000
+```properties
+# 数据源
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=UTC
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:}
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
 
-mybatis:
-  mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.example.app.model
-  configuration:
-    map-underscore-to-camel-case: true   # DB snake_case → Java camelCase 自动转换
-    default-fetch-size: 100
-    default-statement-timeout: 30
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+# MyBatis
+mybatis.mapper-locations=classpath:mapper/**/*.xml
+mybatis.type-aliases-package=com.example.app.model
+mybatis.configuration.map-underscore-to-camel-case=true
+mybatis.configuration.default-fetch-size=100
+mybatis.configuration.default-statement-timeout=30
+mybatis.configuration.log-impl=org.apache.ibatis.logging.slf4j.Slf4jImpl
 
-logging:
-  level:
-    com.example.app.mapper: DEBUG        # 开发时打印 SQL
+# 日志（开发时打印 SQL）
+logging.level.com.example.app.mapper=DEBUG
 ```
 
 ---
@@ -173,7 +174,7 @@ public interface UserMapper {
 
 <mapper namespace="com.example.app.mapper.UserMapper">
 
-    <resultMap id="UserResultMap" type="User">
+    <resultMap id="UserResultMap" type="com.example.model.User">
         <id     column="id"         property="id"/>
         <result column="username"   property="username"/>
         <result column="email"      property="email"/>
