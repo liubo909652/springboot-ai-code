@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.springbootaicode.mapper.StudentMapper">
+
+    <resultMap id="StudentResultMap" type="com.example.springbootaicode.model.Student">
+        <id     column="id"         property="id"/>
+        <result column="student_no" property="studentNo"/>
+        <result column="name"       property="name"/>
+        <result column="gender"     property="gender"/>
+        <result column="age"        property="age"/>
+        <result column="phone"      property="phone"/>
+        <result column="email"      property="email"/>
+        <result column="class_id"   property="classId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, student_no, name, gender, age, phone, email, class_id, created_at, updated_at
+    </sql>
+
+    <sql id="Condition_Where_Clause">
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="studentNo != null and studentNo != ''">
+                AND student_no LIKE CONCAT('%', #{studentNo}, '%')
+            </if>
+            <if test="classId != null">
+                AND class_id = #{classId}
+            </if>
+        </where>
+    </sql>
+
+    <select id="findById" resultMap="StudentResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByClassId" resultMap="StudentResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student
+        WHERE class_id = #{classId}
+        ORDER BY student_no ASC
+    </select>
+
+    <select id="findByCondition" resultMap="StudentResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM student
+        <include refid="Condition_Where_Clause"/>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(*)
+        FROM student
+        <include refid="Condition_Where_Clause"/>
+    </select>
+
+    <select id="countByClassId" resultType="long">
+        SELECT COUNT(*) FROM student WHERE class_id = #{classId}
+    </select>
+
+    <select id="existsByStudentNo" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM student
+        WHERE student_no = #{studentNo}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student (student_no, name, gender, age, phone, email, class_id, created_at, updated_at)
+        VALUES (#{studentNo}, #{name}, #{gender}, #{age}, #{phone}, #{email}, #{classId}, NOW(), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE student
+        <set>
+            <if test="studentNo != null">student_no = #{studentNo},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="classId != null">class_id = #{classId},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+
+</mapper>
